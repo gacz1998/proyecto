@@ -1,0 +1,220 @@
+<style>
+  #producto-cdo-container {
+    max-width: calc(var(--page-width) + 40px);
+    margin: auto;
+    padding: 1.25rem;
+    margin-bottom: 4rem;
+    font-family: var(--font-button), Arial, sans-serif;
+    min-width: 320px;
+  }
+  #producto-detalle {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  #producto-imagen {
+    flex: 1 1 300px;
+    max-width: 600px;
+  }
+  #producto-imagen img {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  #producto-info {
+    flex: 1 1 300px;
+    max-width: 600px;
+  }
+  #producto-info h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: rgba(var(--colors-heading), 1);
+  }
+  #producto-info .sku-stock {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: rgba(var(--colors-text), 0.8);
+  }
+  #producto-info .descripcion {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: rgba(var(--colors-text), 0.9);
+  }
+  #producto-info .colores {
+    margin-bottom: 2rem;
+  }
+  #producto-info .colores label {
+    display: inline-block;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    border: 2px solid transparent;
+    border-radius: 4px;
+  }
+  #producto-info .colores input[type="radio"] {
+    display: none;
+  }
+  #producto-info .colores input[type="radio"]:checked + span {
+    border-color: rgb(17, 32, 115);
+  }
+  #producto-info .colores span {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 2px solid transparent;
+  }
+  .btn-cotizar {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    background: var(--colors-button-hover, rgb(17, 32, 115));
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: var(--border-radius, 6px);
+    transition: background 0.3s ease;
+  }
+  .btn-cotizar:hover {
+    background: rgb(11, 20, 70);
+  }
+</style>
+
+<div id="producto-cdo-container">
+  <section id="producto-detalle">
+    <div id="producto-imagen">
+      <img id="imagen-producto" src="https://via.placeholder.com/600x600?text=Sin+Imagen" alt="Producto" />
+    </div>
+    <div id="producto-info">
+      <h1 id="nombre-producto">Cargando producto...</h1>
+      <div class="sku-stock">
+        <p><strong>SKU:</strong> <span id="sku-producto">N/A</span></p>
+        <p><strong>Stock:</strong> <span id="stock-producto">N/A</span></p>
+      </div>
+      <div class="descripcion" id="descripcion-producto">Cargando descripción...</div>
+      <div class="colores" id="colores-container">
+        <strong>Colores disponibles:</strong>
+        <form id="form-colores"></form>
+      </div>
+      <a href="/pages/cotizacion-cdo" id="btn-cotizar" class="btn-cotizar">Ir a Cotización</a>
+    </div>
+  </section>
+</div>
+
+<script>
+  function getURLParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      id: params.get('id') || ''
+    };
+  }
+
+  async function cargarProductoDesdeAPI() {
+    const { id } = getURLParams();
+    if (!id) return;
+
+    try {
+      const res = await fetch(`https://proxy-api-tago-2.onrender.com/proxy/products?id=${id}`);
+      const data = await res.json();
+
+      const producto = data.product || data;
+
+      const productoData = {
+        name: producto.name || 'Producto sin nombre',
+        sku: producto.sku || 'N/A',
+        stock: producto.stock || 'N/A',
+        description: producto.description || 'Descripción no disponible.',
+        img: producto.image || 'https://via.placeholder.com/600x600?text=Sin+Imagen',
+        colors: producto.colors || []
+      };
+
+      cargarDetalle(productoData);
+      guardarProductoParaCotizacion(productoData);
+
+    } catch (error) {
+      console.error("Error al cargar producto:", error);
+      document.getElementById('nombre-producto').textContent = "Error al cargar producto.";
+    }
+  }
+
+  function cargarDetalle(producto) {
+    document.getElementById('nombre-producto').textContent = producto.name;
+    document.getElementById('sku-producto').textContent = producto.sku;
+    document.getElementById('stock-producto').textContent = producto.stock;
+    document.getElementById('descripcion-producto').textContent = producto.description;
+
+    const imgEl = document.getElementById('imagen-producto');
+    imgEl.src = producto.img;
+    imgEl.alt = producto.name;
+
+    const formColores = document.getElementById('form-colores');
+    formColores.innerHTML = '';
+
+    const coloresArray = Array.isArray(producto.colors) ? producto.colors : [];
+
+    if (coloresArray.length === 0) {
+      formColores.textContent = 'No hay opciones de color disponibles.';
+      return;
+    }
+
+    coloresArray.forEach((color, i) => {
+      let nombreColor = '';
+      let hexColor = '';
+
+      if (typeof color === 'string') {
+        nombreColor = color;
+        hexColor = color;
+      } else if (typeof color === 'object') {
+        nombreColor = color.name || `Color ${i + 1}`;
+        hexColor = color.hex || '#cccccc';
+      }
+
+      const idRadio = `color-radio-${i}`;
+      const label = document.createElement('label');
+      label.setAttribute('for', idRadio);
+      label.title = nombreColor;
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'color';
+      radio.id = idRadio;
+      radio.value = nombreColor;
+      if (i === 0) radio.checked = true;
+
+      const span = document.createElement('span');
+      span.style.backgroundColor = hexColor;
+
+      label.appendChild(radio);
+      label.appendChild(span);
+      formColores.appendChild(label);
+    });
+  }
+
+  let productoActual = null;
+
+  function guardarProductoParaCotizacion(producto) {
+    productoActual = producto;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    cargarProductoDesdeAPI();
+
+    const btnCotizar = document.getElementById('btn-cotizar');
+    btnCotizar.addEventListener('click', (e) => {
+      e.preventDefault();
+      const colorSeleccionado = document.querySelector('input[name="color"]:checked');
+      const color = colorSeleccionado ? colorSeleccionado.value : '';
+
+      if (!productoActual) return;
+
+      const urlCotizacion = `/pages/cotizacion-cdo?` +
+        `name=${encodeURIComponent(productoActual.name)}` +
+        `&sku=${encodeURIComponent(productoActual.sku)}` +
+        `&img=${encodeURIComponent(productoActual.img)}` +
+        `&description=${encodeURIComponent(productoActual.description)}` +
+        `&stock=${encodeURIComponent(productoActual.stock)}` +
+        `&color=${encodeURIComponent(color)}`;
+
+      window.location.href = urlCotizacion;
+    });
+  });
+</script>

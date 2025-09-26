@@ -1,0 +1,683 @@
+<style>
+  /* --- Tu CSS completo --- */
+  .cotizacion-container {
+    max-width: calc(var(--page-width) + 40px);
+    margin: auto;
+    padding: 1.25rem;
+    margin-bottom: 4rem;
+    min-width: 320px;
+    font-family: var(--font-base), sans-serif;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .cotizacion-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .titulo-cotizacion {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    color: rgba(var(--colors-heading, 17,17,51));
+    text-transform: uppercase;
+    font-weight: var(--font-heading-weight);
+  }
+  .contenido-cotizacion {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .producto-imagen {
+    flex: 1 1 450px;
+    max-width: 450px;
+    border: 1px solid rgba(var(--colors-line-and-border, 200,200,200));
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(var(--colors-text, 34, 34, 34), 0.07);
+  }
+  .producto-imagen img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .producto-nombre {
+    margin-top: 0.75rem;
+    font-weight: 1000;
+    font-size: 1.5rem;
+    color: rgba(var(--colors-heading, 17,17,51));
+    text-align: center;
+  }
+  .producto-sku {
+    margin-top: 0.3rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: rgba(var(--colors-text, 34, 34, 34), 0.6);
+    text-align: center;
+  }
+  .producto-color {
+    margin-top: 0.3rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: rgba(0, 102, 204, 1);
+    text-align: center;
+    font-style: italic;
+  }
+  @media (min-width: 601px) {
+    .producto-descripcion {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: rgba(var(--colors-text, 34, 34, 34), 0.85);
+      line-height: 1.5;
+      max-height: 10rem;
+      overflow-y: auto;
+      border-top: 1px solid rgba(var(--colors-line-and-border, 200,200,200));
+      padding: 0.75rem 1rem;
+      text-align: justify;
+    }
+    .formulario-cotizacion textarea {
+      height: 160px !important;
+      font-size: 1.15rem !important;
+      padding: 0.75rem 1rem !important;
+      resize: vertical;
+    }
+  }
+  @media (max-width: 600px) {
+    .contenido-cotizacion {
+      flex-direction: column;
+      align-items: center;
+    }
+    .producto-imagen,
+    .formulario-cotizacion {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+    }
+    .producto-descripcion {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: rgba(var(--colors-text, 34, 34, 34), 0.85);
+      line-height: 1.4;
+      max-height: 6rem;
+      overflow-y: auto;
+      border-top: 1px solid rgba(var(--colors-line-and-border, 200,200,200));
+      padding-top: 0.75rem;
+      text-align: justify;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    .formulario-cotizacion textarea {
+      height: auto !important;
+      font-size: 1rem !important;
+      padding: 0.55rem 0.85rem !important;
+    }
+  }
+  .producto-medidas {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(var(--colors-text, 34, 34, 34), 0.75);
+    text-align: center;
+  }
+  .colores-selector {
+    margin-top: 1.25rem;
+    text-align: center;
+  }
+  .colores-titulo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: rgba(var(--colors-text, 34, 34, 34), 0.85);
+  }
+  .colores-cuadros {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+  .color-cuadro {
+    width: 34px;
+    height: 34px;
+    border-radius: 4px;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    box-sizing: border-box;
+    margin: 0 4px 4px 0;
+  }
+  .color-cuadro.selected {
+    border: 2px solid #000;
+  }
+  .color-cuadro.unico {
+    cursor: default;
+    border-color: #0066cc;
+    box-shadow: 0 0 8px rgba(0, 102, 204, 0.85);
+  }
+  .formulario-cotizacion {
+    flex: 1 1 450px;
+    max-width: 450px;
+    min-width: 300px;
+    border: 1px solid rgba(var(--colors-line-and-border, 200,200,200));
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    background: rgba(var(--colors-background-secondary, 245, 245, 245), 1);
+    box-shadow: 0 5px 15px rgba(var(--colors-text, 34, 34, 34), 0.08);
+  }
+  .formulario-cotizacion label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+    color: rgba(var(--colors-text, 34, 34, 34));
+  }
+  .formulario-cotizacion input,
+  .formulario-cotizacion textarea {
+    width: 100%;
+    padding: 0.55rem 0.85rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(var(--colors-line-and-border, 200,200,200));
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: inherit;
+    color: rgba(var(--colors-text, 34, 34, 34));
+    transition: border-color 0.25s ease;
+  }
+  .formulario-cotizacion input:focus,
+  .formulario-cotizacion textarea:focus {
+    border-color: #0066cc;
+    outline: none;
+  }
+  .formulario-cotizacion textarea {
+    resize: vertical;
+  }
+  .formulario-cotizacion button {
+    padding: 0.85rem 1.2rem;
+    background: #0066cc;
+    color: #fff;
+    text-align: center;
+    border-radius: var(--border-radius);
+    font-family: var(--font-button);
+    font-weight: var(--font-button-weight);
+    border: 1px solid #0066cc;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+    width: 100%;
+    display: inline-block;
+    letter-spacing: 0.6px;
+  }
+  .formulario-cotizacion button:hover,
+  .formulario-cotizacion button:focus {
+    background: #fff;
+    color: #0066cc;
+    box-shadow: 0 0 10px rgba(0, 102, 204, 0.9);
+    outline: none;
+  }
+  .error {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    min-height: 1.2rem;
+    display: block;
+  }
+  #success-message {
+    display: none;
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 700;
+    color: #0066cc;
+  }
+  
+</style>
+
+<div class="cotizacion-container" id="fadeInCotizacion">
+  <a href="productos-cdo.html" style="
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+  ">← Volver a productos</a>
+
+  <h1 class="titulo-cotizacion">Formulario de Cotización</h1>
+  <div class="contenido-cotizacion">
+
+    <div class="producto-imagen" id="producto-imagen-container">
+      <img src="https://placehold.co/300x300?text=Producto" alt="Producto" id="producto-imagen" />
+      <div class="producto-nombre" id="producto-nombre">Cargando producto...</div>
+      <div class="producto-sku" id="producto-sku"></div>
+      <div class="producto-color" id="producto-color"></div>
+      <div class="producto-descripcion" id="producto-descripcion"></div>
+      <div class="producto-medidas" id="producto-medidas"></div>
+      <div class="producto-precio" id="producto-precio" style="margin-top: 0.75rem; font-weight: 700; font-size: 1.2rem; color: #0066cc; text-align: center;"></div>
+
+      <div class="colores-selector" id="colores-selector" style="display:none;">
+        <div class="colores-titulo">Colores disponibles:</div>
+        <div class="colores-cuadros" id="colores-cuadros"></div>
+      </div>
+    </div>
+
+    <form method="post" action="/contact#contact_form" accept-charset="UTF-8" class="formulario-cotizacion" id="form-cotizacion" novalidate>
+      <input type="hidden" name="form_type" value="contact" />
+      <input type="hidden" name="utf8" value="✓" />
+      <input type="hidden" name="contact[subject]" id="contact-subject" value="Solicitud de Cotización" />
+      <input type="hidden" name="contact[producto]" id="contact-producto" />
+      <input type="hidden" name="contact[sku]" id="contact-sku" />
+      <input type="hidden" name="contact[imagen]" id="contact-imagen" />
+      <input type="hidden" name="contact[color]" id="contact-color" />
+
+      <label for="contact_name">Nombre:</label>
+      <input type="text" id="contact_name" name="contact[name]" required />
+      <span class="error" id="error-name"></span>
+
+      <label for="contact_empresa">Empresa:</label>
+      <input type="text" id="contact_empresa" name="contact[empresa]" required />
+      <span class="error" id="error-empresa"></span>
+
+      <label for="contact_telefono">Teléfono:</label>
+      <input type="tel" id="contact_telefono" name="contact[telefono]" pattern="\d{9}" required />
+      <span class="error" id="error-telefono"></span>
+
+      <label for="contact_email">Email:</label>
+      <input type="email" id="contact_email" name="contact[email]" required />
+      <span class="error" id="error-email"></span>
+
+      <label for="contact_message">Mensaje:</label>
+      <textarea id="contact_message" name="contact[body]" rows="5" required></textarea>
+      <span class="error" id="error-mensaje"></span>
+
+      <button type="submit">Enviar Cotización</button>
+    </form>
+  </div>
+
+  <div id="success-message">
+    ¡Gracias! Tu cotización fue enviada con éxito.<br>Nos contactaremos contigo pronto.
+  </div>
+</div>
+
+<script>
+const apiBase = "https://proxy-api-ghwd.onrender.com/proxy/products";
+
+const imgElement = document.getElementById('producto-imagen');
+const nombreElement = document.getElementById('producto-nombre');
+const skuElement = document.getElementById('producto-sku');
+const colorTextElement = document.getElementById('producto-color');
+const descripcionElement = document.getElementById('producto-descripcion');
+const medidasElement = document.getElementById('producto-medidas');
+const precioElement = document.getElementById('producto-precio');
+const coloresSelector = document.getElementById('colores-selector');
+const coloresCuadros = document.getElementById('colores-cuadros');
+
+const inputProducto = document.getElementById('contact-producto');
+const inputSKU = document.getElementById('contact-sku');
+const inputImagen = document.getElementById('contact-imagen');
+const inputColor = document.getElementById('contact-color');
+const subjectInput = document.getElementById('contact-subject');
+
+let productoActual = null;
+let colorSelected = "";
+
+const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 horas
+
+const bicolorMap = {
+  "GRIS Y GRIS OSCURO": ["#E6E6ED", "#555555"],
+  "GRIS Y AZUL": ["#E6E6EF", "#003399"],
+  "GRIS Y NEGRO": ["#E6E6EE", "#000000"],
+  // más combinaciones si las tienes
+};
+
+function guardarCache(key, data) {
+  localStorage.setItem(key, JSON.stringify({
+    data,
+    timestamp: Date.now()
+  }));
+}
+
+function obtenerCache(key, maxAgeMs = CACHE_MAX_AGE_MS) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return null;
+  try {
+    const obj = JSON.parse(raw);
+    if (Date.now() - obj.timestamp > maxAgeMs) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return obj.data;
+  } catch {
+    localStorage.removeItem(key);
+    return null;
+  }
+}
+
+function limpiarColorHex(colorHex) {
+  if (!colorHex) return null;
+  colorHex = colorHex.trim();
+  return colorHex.startsWith('#') ? colorHex : '#' + colorHex;
+}
+
+function colorValidoCSS(color) {
+  const s = new Option().style;
+  s.color = color;
+  return s.color !== '';
+}
+
+function pintarColorCuadro(cuadro, colorNombre, colorHex) {
+  if (bicolorMap[colorNombre]) {
+    const [color1, color2] = bicolorMap[colorNombre];
+    cuadro.style.background = `linear-gradient(45deg, ${color1} 50%, ${color2} 50%)`;
+  } else {
+    cuadro.style.backgroundColor = colorHex;
+  }
+}
+
+function colorAString(color) {
+  if (!color) return '#ccc';
+  if (typeof color === 'string') return color;
+
+  if (typeof color === 'object') {
+    if ('r' in color && 'g' in color && 'b' in color) {
+      return `rgb(${color.r},${color.g},${color.b})`;
+    }
+    if ('hex_code' in color && typeof color.hex_code === 'string') {
+      return color.hex_code.startsWith('#') ? color.hex_code : '#' + color.hex_code;
+    }
+    return '#ccc';
+  }
+  return '#ccc';
+}
+
+function proxyImageUrl(originalUrl, size = "original") {
+  if (!originalUrl) return null;
+  return `https://proxy-api-ghwd.onrender.com/proxy/image?url=${encodeURIComponent(originalUrl)}&size=${size}`;
+}
+
+function obtenerImagenPrincipal(producto, size = "original") {
+  if (producto.pictures && Array.isArray(producto.pictures) && producto.pictures.length > 0) {
+    const firstPic = producto.pictures[0];
+    const urlOriginal = firstPic.original || firstPic.large || firstPic.medium || firstPic.small || firstPic.thumbnail || (typeof firstPic === "string" ? firstPic : null);
+    return proxyImageUrl(urlOriginal, size);
+  }
+  if (producto.pictures && typeof producto.pictures === "object") {
+    const urlOriginal = producto.pictures.original || producto.pictures.large || producto.pictures.medium || producto.pictures.small || producto.pictures.thumbnail;
+    return proxyImageUrl(urlOriginal, size);
+  }
+  if (producto.picture) {
+    const urlOriginal = producto.picture.original || producto.picture.large || producto.picture.medium || producto.picture.small || producto.picture.thumbnail || (typeof producto.picture === "string" ? producto.picture : null);
+    return proxyImageUrl(urlOriginal, size);
+  }
+  if (producto.image) return proxyImageUrl(producto.image, size);
+
+  return `https://placehold.co/400x400?text=SKU+${encodeURIComponent(producto.sku || producto.code || 'N/A')}`;
+}
+
+function mostrarProducto(producto) {
+  productoActual = producto;
+  const variants = producto.variants || [];
+  const productoNombre = producto.name || "";
+  const productoSKU = producto.code || producto.sku || "";
+  const productoDescripcion = producto.description || "";
+  const productoMedidas = producto.measures || "";
+  const productoPrecio = producto.price ?? producto.precio ?? null;
+
+  const mapColores = new Map();
+  variants.forEach(v => {
+    if (v.color && !mapColores.has(v.color.id ?? v.color)) {
+      if (typeof v.color === "object") {
+        mapColores.set(v.color.id, {
+          color: v.color,
+          picture: v.picture
+        });
+      } else {
+        mapColores.set(v.color, {
+          color: v.color,
+          picture: v.picture
+        });
+      }
+    }
+  });
+
+  const coloresUnicos = Array.from(mapColores.values());
+  colorSelected = (coloresUnicos[0]?.color.name) ? coloresUnicos[0].color.name : coloresUnicos[0]?.color || "";
+
+  function actualizarImagenYColor(nuevoColorNombre) {
+    colorSelected = nuevoColorNombre;
+    const variante = variants.find(v => {
+      if (typeof v.color === "object") return v.color.name === nuevoColorNombre;
+      else return v.color === nuevoColorNombre;
+    });
+    if (variante) {
+      const urlOriginal = variante.picture?.original || variante.picture?.large || variante.picture?.medium || variante.picture?.small || variante.picture?.thumbnail || obtenerImagenPrincipal(producto, "original");
+      const nuevaImg = urlOriginal && urlOriginal.startsWith('https://proxy-api-ghwd.onrender.com/proxy/image') ? urlOriginal : proxyImageUrl(urlOriginal, "original");
+      imgElement.src = nuevaImg;
+      imgElement.alt = `${productoNombre} - ${nuevoColorNombre}`;
+      inputImagen.value = nuevaImg;
+
+      imgElement.onerror = () => {
+        imgElement.src = `https://placehold.co/400x400?text=SKU+${encodeURIComponent(productoSKU || 'N/A')}`;
+        imgElement.onerror = null;
+      };
+    }
+    inputColor.value = nuevoColorNombre;
+    colorTextElement.textContent = nuevoColorNombre;
+    document.querySelectorAll('.color-cuadro').forEach(el => {
+      el.classList.toggle('selected', el.dataset.color === nuevoColorNombre);
+    });
+  }
+
+  nombreElement.textContent = productoNombre;
+  skuElement.textContent = "SKU: " + (productoSKU || "N/A");
+  descripcionElement.textContent = productoDescripcion;
+  medidasElement.textContent = productoMedidas;
+  inputProducto.value = productoNombre;
+  inputSKU.value = productoSKU;
+  subjectInput.value = "Cotización: " + productoNombre;
+
+  if (productoPrecio !== null && productoPrecio !== undefined) {
+    precioElement.textContent = `Precio: $${productoPrecio}`;
+    precioElement.style.display = "block";
+  } else {
+    precioElement.textContent = "";
+    precioElement.style.display = "none";
+  }
+
+  coloresCuadros.innerHTML = "";
+
+  if (coloresUnicos.length > 0) {
+    coloresSelector.style.display = "block";
+    const fragment = document.createDocumentFragment();
+    coloresUnicos.forEach(c => {
+      let colorHexVal = '#ccc';
+      let colorName = '';
+
+      if (typeof c.color === "object") {
+        colorHexVal = limpiarColorHex(c.color.hex_code) || c.color.name || '#ccc';
+        colorName = c.color.name || 'Color desconocido';
+      } else {
+        colorHexVal = limpiarColorHex(c.color) || '#ccc';
+        colorName = c.color || 'Color desconocido';
+      }
+
+      const cuadro = document.createElement('div');
+      cuadro.className = 'color-cuadro';
+      cuadro.title = colorName;
+      cuadro.dataset.color = colorName;
+
+      pintarColorCuadro(cuadro, colorName, colorHexVal);
+
+      cuadro.addEventListener('click', () => actualizarImagenYColor(colorName));
+      fragment.appendChild(cuadro);
+    });
+    coloresCuadros.appendChild(fragment);
+    actualizarImagenYColor(colorSelected);
+  } else {
+    coloresSelector.style.display = "none";
+    const imgSrc = obtenerImagenPrincipal(producto, "original");
+    imgElement.src = imgSrc;
+    imgElement.alt = productoNombre || "Imagen del producto";
+    inputImagen.value = imgSrc;
+    inputColor.value = "";
+    colorTextElement.textContent = "";
+
+    imgElement.onerror = () => {
+      imgElement.src = `https://placehold.co/400x400?text=SKU+${encodeURIComponent(productoSKU || 'N/A')}`;
+      imgElement.onerror = null;
+    };
+  }
+
+  const botonEnviar = document.querySelector('#form-cotizacion button[type="submit"]');
+  if (botonEnviar) botonEnviar.disabled = false;
+}
+
+// resto del código queda igual (mostrarDatosMinimos, normalizarSKU, buscarProductoPorSKU, buscarProductoPorSKUenAPI, cargarProductoInicial, window.onload)
+
+function mostrarDatosMinimos(datos) {
+  if (!datos) return;
+  nombreElement.textContent = datos.name || "";
+  skuElement.textContent = "SKU: " + (datos.code || "N/A");
+  precioElement.textContent = datos.price ? `Precio: $${datos.price}` : "";
+  precioElement.style.display = datos.price ? "block" : "none";
+
+  const imgSrc = datos.image ? proxyImageUrl(datos.image, "original") : `https://placehold.co/400x400?text=SKU+${encodeURIComponent(datos.code || "N/A")}`;
+  imgElement.src = imgSrc;
+  imgElement.alt = datos.name || "Producto";
+  inputImagen.value = imgSrc;
+  inputProducto.value = datos.name || "";
+  inputSKU.value = datos.code || "";
+  subjectInput.value = "Cotización: " + (datos.name || "");
+
+  coloresCuadros.innerHTML = "";
+  coloresSelector.style.display = "none";
+  inputColor.value = "";
+  colorTextElement.textContent = "";
+
+  const botonEnviar = document.querySelector('#form-cotizacion button[type="submit"]');
+  if (botonEnviar) botonEnviar.disabled = false;
+}
+
+function normalizarSKU(sku) {
+  return (sku || '').toLowerCase().replace(/[-\s]/g, '');
+}
+
+async function buscarProductoPorSKU(skuBuscado) {
+  skuBuscado = normalizarSKU(skuBuscado);
+
+  const indice = obtenerCache('indiceSkuAPagina');
+  const cacheMin = obtenerCache('cacheProductosMinimos') || {};
+
+  if (cacheMin[skuBuscado]) {
+    console.log('Producto encontrado en cache mínima');
+    mostrarDatosMinimos(cacheMin[skuBuscado]);
+  }
+
+  if (indice && indice[skuBuscado]) {
+    const paginaDondeEsta = indice[skuBuscado];
+    console.log(`SKU encontrado en índice en la página ${paginaDondeEsta}, buscando ahí...`);
+
+    try {
+      const response = await fetch(`${apiBase}?page_size=100&page_number=${paginaDondeEsta}`);
+      if (!response.ok) throw new Error('Error en fetch página índice');
+      const data = await response.json();
+      const producto = (data.products || []).find(p => normalizarSKU(p.code || p.sku) === skuBuscado) || null;
+      if (producto) {
+        mostrarProducto(producto);
+        return producto;
+      } else {
+        console.log("No encontrado en página índice, buscando secuencial...");
+        return buscarProductoPorSKUenAPI(skuBuscado);
+      }
+    } catch (e) {
+      console.error(e);
+      console.log("Error fetch página índice, buscando secuencial...");
+      return buscarProductoPorSKUenAPI(skuBuscado);
+    }
+  } else {
+    console.log("Índice no disponible o SKU no encontrado en índice, buscando secuencial...");
+    return buscarProductoPorSKUenAPI(skuBuscado);
+  }
+}
+
+async function buscarProductoPorSKUenAPI(skuBuscado) {
+  const productosPorPagina = 100;
+  const maxPaginas = 5;
+  let pagina = 1;
+
+  skuBuscado = normalizarSKU(skuBuscado);
+
+  while (pagina <= maxPaginas) {
+    console.log(`Buscando SKU en página ${pagina}...`);
+    try {
+      const response = await fetch(`${apiBase}?page_size=${productosPorPagina}&page_number=${pagina}`);
+      if (!response.ok) break;
+      const data = await response.json();
+      const productos = data.products || [];
+      if (productos.length === 0) break;
+
+      const encontrado = productos.find(p => normalizarSKU(p.code || p.sku) === skuBuscado);
+      if (encontrado) {
+        mostrarProducto(encontrado);
+        return encontrado;
+      }
+      pagina++;
+    } catch (err) {
+      console.error(err);
+      break;
+    }
+  }
+  alert(`No se encontró el producto con SKU: ${skuBuscado.toUpperCase()}`);
+  return null;
+}
+
+async function cargarProductoInicial() {
+  const params = new URLSearchParams(window.location.search);
+  const productoJsonStr = params.get("productoJson");
+
+  if (productoJsonStr) {
+    try {
+      const productoObj = JSON.parse(decodeURIComponent(productoJsonStr));
+      if (productoObj && productoObj.name) {
+        mostrarProducto(productoObj);
+        return;
+      }
+    } catch (e) {
+      console.warn("Error parseando productoJson", e);
+    }
+  }
+
+  const skuURL = params.get("sku");
+  if (skuURL) {
+    const prodEncontrado = await buscarProductoPorSKU(skuURL);
+    if (!prodEncontrado) {
+      nombreElement.textContent = "Producto no encontrado";
+      imgElement.src = "https://placehold.co/400x400?text=Producto+no+encontrado";
+      imgElement.alt = "Producto no encontrado";
+      coloresSelector.style.display = "none";
+
+      const botonEnviar = document.querySelector('#form-cotizacion button[type="submit"]');
+      if (botonEnviar) botonEnviar.disabled = true;
+    }
+    return;
+  }
+
+  nombreElement.textContent = "Producto no disponible";
+  imgElement.src = "https://placehold.co/400x400?text=Producto+no+disponible";
+  imgElement.alt = "Producto no disponible";
+  coloresSelector.style.display = "none";
+
+  const botonEnviar = document.querySelector('#form-cotizacion button[type="submit"]');
+  if (botonEnviar) botonEnviar.disabled = true;
+}
+
+window.addEventListener('load', () => {
+  document.getElementById('fadeInCotizacion').classList.add('visible');
+  const botonEnviar = document.querySelector('#form-cotizacion button[type="submit"]');
+  if (botonEnviar) botonEnviar.disabled = true;
+  cargarProductoInicial();
+});
+</script>
