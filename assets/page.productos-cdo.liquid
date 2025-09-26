@@ -1,0 +1,563 @@
+<style>
+#productos-cdo-container {
+  max-width: calc(var(--page-width) + 40px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  margin-bottom: 1rem;
+  min-width: 240px;
+}
+
+#productos-cdo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-top: var(--advanced-sections-spacing);
+}
+
+@media (max-width: 1024px) {
+  #productos-cdo { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  #productos-cdo { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  #productos-cdo { grid-template-columns: repeat(1, 1fr); }
+}
+
+.card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid rgba(var(--colors-line-and-border), 1);
+  border-radius: 4px;
+  box-shadow: 0 5px 15px rgba(var(--colors-text), 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card__inner {
+  position: relative;
+  padding-top: 66%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.card__media img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  max-height: 125px;
+  height: 100%;
+  object-fit: contain;
+  transform: translate(-50%, -50%) scale(0.8);
+  transition: transform 0.5s ease;
+}
+
+.group:hover .card__media img {
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+.card__content {
+  padding: 1.25rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card__heading {
+  font-size: var(--font-size-heading, 1.4rem);
+  font-weight: var(--font-heading-weight);
+  color: rgba(var(--colors-heading));
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.card-information {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
+.card-information.pareja {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.5rem;
+}
+
+.card-information.pareja p {
+  margin: 0;
+  font-size: 0.95rem !important;
+  color: rgba(var(--colors-text), 0.9) !important;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+}
+
+.card-information.pareja strong {
+  min-width: 50px;
+  font-weight: 600;
+  color: rgba(var(--colors-text), 0.7);
+  margin-right: 0.15rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1rem;
+  background: var(--colors-button-hover);
+  color: rgb(var(--colors-button-text-hover));
+  text-align: center;
+  border-radius: var(--border-radius);
+  font-family: var(--font-button);
+  font-weight: var(--font-button-weight);
+  text-decoration: none;
+  transition: background 0.3s ease;
+  margin-top: 1rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: rgba(var(--colors-button), 1);
+}
+
+.pagination {
+  text-align: center;
+  margin: 2rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination .btn:disabled {
+  background-color: rgba(var(--colors-line-and-border), 0.4);
+  color: rgba(var(--colors-text), 0.5);
+  cursor: not-allowed;
+}
+
+.page-number {
+  font-weight: bold;
+  font-size: 1.1rem;
+  min-width: 2rem;
+}
+
+#catalogo-layout {
+  display: flex;
+  gap: 2rem;
+}
+
+#sidebar-filtros {
+  flex: 0 0 250px;
+  border: 1px solid rgba(var(--colors-line-and-border), 1);
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: rgba(var(--colors-background), 0.6);
+  box-shadow: 0 2px 8px rgba(var(--colors-text), 0.05);
+  height: fit-content;
+}
+
+#sidebar-filtros h2.sidebar-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: rgba(var(--colors-heading), 1);
+}
+
+#sidebar-filtros input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid rgba(var(--colors-line-and-border), 1);
+  border-radius: 4px;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+/* ----------- AJUSTES PARA EL TOGGLE Y CATEGORÍAS ----------- */
+
+#filtro-categorias-container {
+  margin-top: 0.5rem; /* reducido para estar más pegado al buscador */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* El botón aparece antes de la lista, ocupa 100% ancho, menos margen superior */
+#btn-toggle-categorias {
+  width: 100%;
+  margin-top: 0rem;  /* sin margen superior */
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  background-color: var(--colors-button-hover);
+  color: rgb(var(--colors-button-text-hover));
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#btn-toggle-categorias:hover {
+  background-color: rgba(var(--colors-button), 1);
+}
+
+/* La lista está visible por defecto, con transición suave */
+#filtro-categorias-lista {
+  display: block;
+  overflow: hidden;
+  max-height: 1000px;
+  opacity: 1;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+}
+
+/* Oculto al no tener la clase .visible */
+#filtro-categorias-lista:not(.visible) {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Links de categoría */
+.categoria-link {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  color: rgba(var(--colors-text), 0.9);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.categoria-link:hover {
+  color: var(--colors-accent);
+  text-decoration: underline;
+}
+
+.categoria-link.activa {
+  font-weight: bold;
+  color: rgb(17, 32, 115);
+}
+
+@media (max-width: 768px) {
+  #catalogo-layout {
+    flex-direction: column;
+  }
+  #sidebar-filtros {
+    width: 100%;
+  }
+}
+
+/* Ocultar botón mostrar/ocultar categorías en desktop */
+@media (min-width: 769px) {
+  #btn-toggle-categorias {
+    display: none !important;
+  }
+}
+
+</style>
+
+<div id="productos-cdo-container">
+  <div id="catalogo-layout">
+    <aside id="sidebar-filtros">
+      <h2 class="sidebar-title">Filtrar productos</h2>
+
+      <input type="search" id="buscador-productos" placeholder="Buscar productos..." aria-label="Buscar productos" />
+
+      <div id="filtro-categorias-container">
+        <button id="btn-toggle-categorias" class="btn">Mostrar categorías</button>
+        <div id="filtro-categorias-lista" class="visible"></div>
+      </div>
+    </aside>
+
+    <section id="main-productos">
+      <div id="productos-cdo" class="grid grid--uniform grid--view-items"></div>
+      <div class="pagination">
+        <button id="btn-anterior" class="btn" disabled>Anterior</button>
+        <span id="numero-pagina" class="page-number">1</span>
+        <button id="btn-siguiente" class="btn">Siguiente</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const apiBase = "https://proxy-api-ghwd.onrender.com/proxy/products";
+let paginaActual = 1;
+const productosPorPagina = 16;
+let filtroFamilia = "";
+let textoBusqueda = "";
+let categoriasSet = new Set();
+let todosLosProductos = [];
+let cargandoPaginadoBackground = false;
+let cargadoCompleto = false;
+
+const contenedorProductos = document.getElementById("productos-cdo");
+
+function mostrarCargando(mostrar) {
+  const msgId = "mensaje-cargando";
+  let msg = document.getElementById(msgId);
+  if (mostrar) {
+    if (!msg) {
+      msg = document.createElement("p");
+      msg.id = msgId;
+      msg.style.textAlign = "center";
+      msg.style.fontWeight = "bold";
+      msg.style.marginTop = "1rem";
+      msg.textContent = "Cargando más productos...";
+      contenedorProductos.parentNode.appendChild(msg);
+    }
+  } else {
+    if (msg) msg.remove();
+  }
+}
+
+async function cargarPagina(pagina) {
+  try {
+    const response = await fetch(`${apiBase}?page_size=${productosPorPagina}&page_number=${pagina}`);
+    const data = await response.json();
+    return data.products || [];
+  } catch (e) {
+    if (pagina === 1) {
+      contenedorProductos.innerHTML =
+        '<p style="color:red; text-align:center;">Error al cargar productos.</p>';
+    }
+    return [];
+  }
+}
+
+async function cargarPrimeraPagina() {
+  const productos = await cargarPagina(1);
+  todosLosProductos = productos;
+  actualizarCategorias();
+  filtrarYMostrar();
+}
+
+async function cargarSiguientesPaginasEnBackground() {
+  let pagina = 2;
+  cargandoPaginadoBackground = true;
+  mostrarCargando(true);
+
+  while (true) {
+    const productos = await cargarPagina(pagina);
+    if (productos.length === 0) break;
+
+    todosLosProductos = todosLosProductos.concat(productos);
+    actualizarCategorias();
+    filtrarYMostrar();
+
+    pagina++;
+    await new Promise(res => setTimeout(res, 500));
+  }
+
+  mostrarCargando(false);
+  cargandoPaginadoBackground = false;
+  cargadoCompleto = true;
+  filtrarYMostrar();
+}
+
+function toggleCategoriasMobile() {
+  const lista = document.getElementById("filtro-categorias-lista");
+  const btn = document.getElementById("btn-toggle-categorias");
+
+  lista.classList.toggle("visible");
+  btn.textContent = lista.classList.contains("visible") ? "Ocultar categorías" : "Mostrar categorías";
+}
+
+function actualizarFiltroSimple() {
+  const contenedor = document.getElementById("filtro-categorias-lista");
+  contenedor.innerHTML = "";
+
+  const categorias = ["Todas las categorías", ...Array.from(categoriasSet).sort()];
+
+  categorias.forEach((cat) => {
+    const isActive = (!filtroFamilia && cat === "Todas las categorías") || filtroFamilia === cat;
+    const link = document.createElement("span");
+    link.className = "categoria-link" + (isActive ? " activa" : "");
+    link.textContent = cat;
+
+    link.addEventListener("click", () => {
+      filtroFamilia = cat === "Todas las categorías" ? "" : cat;
+      paginaActual = 1;
+      actualizarFiltroSimple();
+      filtrarYMostrar();
+
+      // --- ACTUALIZA LA URL SIN RECARGAR ---
+      const url = new URL(window.location);
+      if (filtroFamilia) {
+        url.searchParams.set("categoria", filtroFamilia);
+      } else {
+        url.searchParams.delete("categoria");
+      }
+      window.history.replaceState({}, "", url);
+
+      if (window.innerWidth <= 768) {
+        document.getElementById("filtro-categorias-lista").classList.remove("visible");
+        document.getElementById("btn-toggle-categorias").textContent = "Mostrar categorías";
+      }
+    });
+
+    contenedor.appendChild(link);
+  });
+}
+
+function mostrarProductos(productos) {
+  const contenedor = contenedorProductos;
+
+  if (productos.length === 0) {
+    contenedor.innerHTML = '<p style="text-align:center;">No se encontraron productos.</p>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  productos.forEach((producto) => {
+    const variante = producto.variants?.[0];
+    const imagen = variante?.picture?.medium || variante?.picture?.original || variante?.picture?.large || variante?.picture?.small || producto.image || "https://via.placeholder.com/300x300?text=Sin+Imagen";
+    
+    // Siempre usar enlace de cotización
+    const urlCotizacion = `/pages/cotizacion-cdo?sku=${encodeURIComponent(producto.code)}`;
+
+    const div = document.createElement("div");
+    div.className = "grid__item";
+    div.innerHTML = `
+      <div class="card-wrapper group">
+        <div class="card">
+          <div class="card__inner">
+            <a href="${urlCotizacion}" class="card__media">
+              <img src="${imagen}" alt="${producto.name}" class="motion-reduce" loading="lazy" />
+            </a>
+          </div>
+          <div class="card__content">
+            <h3 class="card__heading">
+              <a href="${urlCotizacion}" class="full-unstyled-link">${producto.name}</a>
+            </h3>
+            <div class="card-information pareja">
+              <p><strong>SKU:</strong> ${producto.code || "N/A"}</p>
+              <p><strong>Stock:</strong> ${variante?.stock_available ?? "N/A"}</p>
+            </div>
+            <a href="${urlCotizacion}" class="btn">Cotizar</a>
+          </div>
+        </div>
+      </div>
+    `;
+
+    fragment.appendChild(div);
+  });
+
+  contenedor.innerHTML = "";
+  contenedor.appendChild(fragment);
+}
+
+function filtrarYMostrar() {
+  let filtrados = todosLosProductos;
+
+  if (filtroFamilia) {
+    filtrados = filtrados.filter((p) =>
+      p.categories?.some((cat) => cat.name.trim() === filtroFamilia)
+    );
+  }
+
+  if (textoBusqueda.trim() !== "") {
+    const busquedaLower = textoBusqueda.toLowerCase();
+    filtrados = filtrados.filter(
+      (p) =>
+        p.name.toLowerCase().includes(busquedaLower) ||
+        (p.description && p.description.toLowerCase().includes(busquedaLower)) ||
+        (p.code && p.code.toLowerCase().includes(busquedaLower))
+    );
+  }
+
+  filtrados = filtrados.filter(p => {
+    const tieneImagen = (
+      (p.image && p.image.trim() !== "") ||
+      (p.variants && p.variants.some(v => v.picture && v.picture.large && v.picture.large.trim() !== ""))
+    );
+    const tieneDescripcion = p.description && p.description.trim() !== "";
+    return tieneImagen || tieneDescripcion;
+  });
+
+  const inicio = (paginaActual - 1) * productosPorPagina;
+  const fin = inicio + productosPorPagina;
+  const productosPagina = filtrados.slice(inicio, fin);
+
+  mostrarProductos(productosPagina);
+
+  document.getElementById("btn-anterior").disabled = paginaActual <= 1;
+  const puedeSiguiente = fin < filtrados.length || !cargadoCompleto;
+  document.getElementById("btn-siguiente").disabled = !puedeSiguiente;
+
+  document.getElementById("numero-pagina").textContent = paginaActual;
+}
+
+function actualizarCategorias() {
+  categoriasSet.clear();
+  todosLosProductos.forEach((producto) => {
+    if (producto.categories && producto.categories.length > 0) {
+      producto.categories.forEach((cat) => categoriasSet.add(cat.name.trim()));
+    } else {
+      categoriasSet.add("Sin categoría");
+    }
+  });
+  actualizarFiltroSimple();
+}
+
+document.getElementById("btn-anterior").addEventListener("click", () => {
+  if (paginaActual > 1) {
+    paginaActual--;
+    filtrarYMostrar();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});
+
+document.getElementById("btn-siguiente").addEventListener("click", () => {
+  paginaActual++;
+  filtrarYMostrar();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+document.getElementById("buscador-productos").addEventListener("input", (e) => {
+  textoBusqueda = e.target.value;
+  paginaActual = 1;
+  filtrarYMostrar();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+document.getElementById("btn-toggle-categorias").addEventListener("click", toggleCategoriasMobile);
+
+document.addEventListener("DOMContentLoaded", async () => {
+  paginaActual = 1;
+  await cargarPrimeraPagina();
+  cargarSiguientesPaginasEnBackground();
+
+  // --- BLOQUE INTEGRADO: FILTRO POR CATEGORÍA DESDE URL ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoriaInicial = urlParams.get("categoria");
+  if (categoriaInicial) {
+    // Si existe la categoría en tu Set, se aplica al cargar
+    if (categoriasSet.has(categoriaInicial)) {
+      filtroFamilia = categoriaInicial;
+      actualizarFiltroSimple();
+      filtrarYMostrar();
+    }
+  }
+});
+</script>
